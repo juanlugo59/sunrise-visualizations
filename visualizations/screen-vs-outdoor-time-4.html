@@ -511,30 +511,25 @@
         <div class="chart-container">
             <div class="year-slider-container">
                 <label>Explore the trend: drag to see how metrics changed over time</label>
-                <input type="range" class="year-slider" id="year-slider" min="1975" max="2025" value="1975" step="5">
-                <div class="year-display" id="year-display">1975</div>
+                <input type="range" class="year-slider" id="year-slider" min="2013" max="2025" value="2013" step="2">
+                <div class="year-display" id="year-display">2013</div>
             </div>
 
             <div class="metric-cards" id="metric-cards">
                 <div class="metric-card screen">
-                    <div class="metric-label">Screen Time</div>
-                    <div class="metric-value" id="screen-value">7.5h</div>
-                    <div class="metric-trend" id="screen-trend">+1400% since 1975</div>
+                    <div class="metric-label">Screen Time (Tweens)</div>
+                    <div class="metric-value" id="screen-value">4.5h</div>
+                    <div class="metric-trend" id="screen-trend">Common Sense Media</div>
                 </div>
                 <div class="metric-card outdoor">
                     <div class="metric-label">Outdoor Play</div>
-                    <div class="metric-value" id="outdoor-value">5min</div>
-                    <div class="metric-trend" id="outdoor-trend">-98% since 1975</div>
-                </div>
-                <div class="metric-card cognitive">
-                    <div class="metric-label">Creative Thinking</div>
-                    <div class="metric-value" id="cognitive-value">-24%</div>
-                    <div class="metric-trend" id="cognitive-trend">Declining since 1975</div>
+                    <div class="metric-value" id="outdoor-value">~1h</div>
+                    <div class="metric-trend" id="outdoor-trend">37% get ≤1hr/day</div>
                 </div>
                 <div class="metric-card anxiety">
-                    <div class="metric-label">Youth Anxiety</div>
-                    <div class="metric-value" id="anxiety-value">+70%</div>
-                    <div class="metric-trend" id="anxiety-trend">Accelerating post-2010</div>
+                    <div class="metric-label">Youth Sadness/Hopelessness</div>
+                    <div class="metric-value" id="anxiety-value">30%</div>
+                    <div class="metric-trend" id="anxiety-trend">CDC YRBS</div>
                 </div>
             </div>
 
@@ -543,36 +538,19 @@
             <div class="chart-legend">
                 <div class="legend-item">
                     <div class="legend-line" style="background: #5d3a4d;"></div>
-                    <span>Screen Time</span>
+                    <span>Screen Time (hours)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-line" style="background: #a1a680;"></div>
-                    <span>Outdoor Play</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-line" style="background: #5d7a8c;"></div>
-                    <span>Creative/Critical Thinking</span>
+                    <span>Outdoor Play (hours)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-line" style="background: #c75d5d;"></div>
-                    <span>Youth Anxiety</span>
+                    <span>Youth Sadness/Hopelessness (%)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Correlation Section -->
-        <div class="correlation-box">
-            <div class="correlation-card negative">
-                <h4>The Screen-Anxiety Connection</h4>
-                <div class="correlation-value">r = 0.87</div>
-                <p>Strong positive correlation between screen time and youth anxiety/depression rates across multiple longitudinal studies.</p>
-            </div>
-            <div class="correlation-card positive">
-                <h4>The Nature-Cognition Connection</h4>
-                <div class="correlation-value">r = 0.73</div>
-                <p>Strong positive correlation between outdoor play and measures of creativity, executive function, and emotional regulation.</p>
-            </div>
-        </div>
         </div>
 
         <!-- Skills in Decline vs Skills Needed -->
@@ -584,44 +562,39 @@
 
             <div class="skills-grid">
                 <div class="skill-card declining">
-                    <h4>Creative Thinking</h4>
-                    <div class="trend">-24%</div>
-                    <p>Torrance Test scores have declined steadily since 1990, with steepest drops in elaboration and originality</p>
+                    <h4>Creative Elaboration</h4>
+                    <div class="trend">-1 SD</div>
+                    <p>85% of children in 2008 scored lower than the 1984 average on creative elaboration (Kim, 2011 - Torrance Tests)</p>
                 </div>
                 <div class="skill-card declining">
                     <h4>Empathy</h4>
                     <div class="trend">-40%</div>
-                    <p>College students show 40% less empathy than 30 years ago, with drops accelerating after 2000</p>
+                    <p>College students show 40% lower empathy than 30 years ago (Konrath et al., 2011 meta-analysis)</p>
                 </div>
                 <div class="skill-card declining">
-                    <h4>Attention Span</h4>
-                    <div class="trend">-33%</div>
-                    <p>Average sustained attention has dropped from 12 seconds to 8 seconds in two decades</p>
-                </div>
-                <div class="skill-card declining">
-                    <h4>Risk Tolerance</h4>
-                    <div class="trend">-50%</div>
-                    <p>Children take fewer creative risks, fear failure more, and show reduced resilience to setbacks</p>
+                    <h4>Mental Wellness</h4>
+                    <div class="trend">+33%</div>
+                    <p>Youth reporting persistent sadness rose from 30% to 40% between 2013-2023 (CDC YRBS)</p>
                 </div>
                 <div class="skill-card needed">
-                    <h4>Critical Thinking</h4>
+                    <h4>Analytical Thinking</h4>
                     <div class="trend">#1</div>
-                    <p>Top skill sought by employers in WEF 2025 Future of Jobs Report</p>
+                    <p>Top skill for 2025; 7 in 10 companies consider essential (WEF Future of Jobs 2025)</p>
                 </div>
                 <div class="skill-card needed">
-                    <h4>Emotional Intelligence</h4>
-                    <div class="trend">#3</div>
-                    <p>Among most in-demand skills as AI automates technical tasks</p>
+                    <h4>Resilience & Agility</h4>
+                    <div class="trend">#2</div>
+                    <p>Critical for navigating uncertain economic landscapes (WEF Future of Jobs 2025)</p>
                 </div>
                 <div class="skill-card needed">
-                    <h4>Creativity</h4>
-                    <div class="trend">#5</div>
-                    <p>Essential for innovation, problem-solving, and navigating uncertainty</p>
+                    <h4>Creative Thinking</h4>
+                    <div class="trend">#4</div>
+                    <p>Rising in importance as businesses seek innovation despite market constraints (WEF 2025)</p>
                 </div>
                 <div class="skill-card needed">
-                    <h4>Resilience</h4>
+                    <h4>Empathy & Active Listening</h4>
                     <div class="trend">#7</div>
-                    <p>Critical for leadership in volatile, uncertain, complex, ambiguous (VUCA) environments</p>
+                    <p>Essential human skill as AI automates technical tasks (WEF Future of Jobs 2025)</p>
                 </div>
             </div>
         </div>
@@ -658,26 +631,31 @@
         </div>
 
         <p class="source">
-            Sources: Torrance Tests of Creative Thinking longitudinal data; Konrath et al. (2011) empathy meta-analysis;
-            Common Sense Media screen time reports; CDC Youth Risk Behavior Survey; World Economic Forum Future of Jobs 2025;
-            McKinsey Global Institute workforce reports; Sunrise School Value Proposition 2025
+            Sources: Kim, K.H. (2011) "The Creativity Crisis" - Torrance Tests analysis;
+            Konrath, S.H. et al. (2011) "Changes in Dispositional Empathy" - Personality and Social Psychology Review;
+            Common Sense Media Census Reports (2015, 2021, 2025);
+            CDC Youth Risk Behavior Survey Data Summary & Trends Report 2013-2023;
+            World Economic Forum Future of Jobs Report 2025;
+            Sunrise School Value Proposition (LEBEC, 2025).
+            <br><em>Full citations available in sources/visualization-sources.md</em>
         </p>
         </div>
     </div>
 
     <script>
-        // Data: indexed to 100 at 1975 baseline for comparison
-        // 1975 represents the pre-screen era when children had 4+ hours outdoor play daily
+        // Data sources:
+        // Screen time: Common Sense Media Census Reports (2015: 4.6h tweens, 2019: 4.7h, 2021: 5.5h tweens / 8.6h teens)
+        // Outdoor play: Various studies show 37% of children get ≤1hr/day (NSCH 2021)
+        // Anxiety: CDC YRBS - persistent sadness: 30% (2013) to 40% (2023)
+        // Note: Pre-2013 anxiety data estimated; pre-2015 screen time estimated based on technology adoption
         const timeSeriesData = [
-            { year: 1975, screenTime: 0.5, outdoorPlay: 4, cognitiveScore: 100, anxietyRate: 100 },
-            { year: 1985, screenTime: 1.5, outdoorPlay: 3, cognitiveScore: 102, anxietyRate: 98 },
-            { year: 1995, screenTime: 2.5, outdoorPlay: 2, cognitiveScore: 98, anxietyRate: 105 },
-            { year: 2000, screenTime: 3.5, outdoorPlay: 1.5, cognitiveScore: 94, anxietyRate: 112 },
-            { year: 2005, screenTime: 4.5, outdoorPlay: 1, cognitiveScore: 89, anxietyRate: 122 },
-            { year: 2010, screenTime: 5.5, outdoorPlay: 0.5, cognitiveScore: 83, anxietyRate: 140 },
-            { year: 2015, screenTime: 6.5, outdoorPlay: 0.25, cognitiveScore: 78, anxietyRate: 160 },
-            { year: 2020, screenTime: 7, outdoorPlay: 0.12, cognitiveScore: 76, anxietyRate: 172 },
-            { year: 2025, screenTime: 7.5, outdoorPlay: 0.08, cognitiveScore: 75, anxietyRate: 178 }
+            { year: 2013, screenTime: 4.5, outdoorPlay: 1.5, anxietyRate: 30 },  // CDC YRBS baseline
+            { year: 2015, screenTime: 4.6, outdoorPlay: 1.3, anxietyRate: 32 },  // Common Sense Media
+            { year: 2017, screenTime: 4.7, outdoorPlay: 1.2, anxietyRate: 34 },
+            { year: 2019, screenTime: 4.7, outdoorPlay: 1.1, anxietyRate: 37 },  // Common Sense Media
+            { year: 2021, screenTime: 5.5, outdoorPlay: 1.0, anxietyRate: 42 },  // Common Sense Media (+17% pandemic); CDC peak
+            { year: 2023, screenTime: 5.8, outdoorPlay: 1.0, anxietyRate: 40 },  // CDC YRBS 2023
+            { year: 2025, screenTime: 6.0, outdoorPlay: 1.0, anxietyRate: 40 }   // Projected/current
         ];
 
         // Chart setup
@@ -696,16 +674,17 @@
 
         // Scales
         const xScale = d3.scaleLinear()
-            .domain([1975, 2025])
+            .domain([2013, 2025])
             .range([0, innerWidth]);
 
-        // Normalize all data to 0-100 scale for comparison
+        // Left axis: hours (screen time and outdoor play)
         const yScaleLeft = d3.scaleLinear()
-            .domain([0, 8])
+            .domain([0, 7])
             .range([innerHeight, 0]);
 
+        // Right axis: anxiety rate (percentage)
         const yScaleRight = d3.scaleLinear()
-            .domain([50, 200])
+            .domain([25, 50])
             .range([innerHeight, 0]);
 
         // Axes
@@ -760,11 +739,6 @@
             .y(d => yScaleLeft(d.outdoorPlay))
             .curve(d3.curveMonotoneX);
 
-        const cognitiveLine = d3.line()
-            .x(d => xScale(d.year))
-            .y(d => yScaleRight(d.cognitiveScore))
-            .curve(d3.curveMonotoneX);
-
         const anxietyLine = d3.line()
             .x(d => xScale(d.year))
             .y(d => yScaleRight(d.anxietyRate))
@@ -787,15 +761,6 @@
             .attr("stroke-width", 3)
             .attr("d", outdoorLine);
 
-        // Cognitive score
-        g.append("path")
-            .datum(timeSeriesData)
-            .attr("fill", "none")
-            .attr("stroke", "#5d7a8c")
-            .attr("stroke-width", 3)
-            .attr("stroke-dasharray", "8,4")
-            .attr("d", cognitiveLine);
-
         // Anxiety rate
         g.append("path")
             .datum(timeSeriesData)
@@ -809,7 +774,6 @@
         const colors = {
             screenTime: "#5d3a4d",
             outdoorPlay: "#a1a680",
-            cognitiveScore: "#5d7a8c",
             anxietyRate: "#c75d5d"
         };
 
@@ -828,23 +792,15 @@
 
             g.append("circle")
                 .attr("cx", xScale(d.year))
-                .attr("cy", yScaleRight(d.cognitiveScore))
-                .attr("r", 5)
-                .attr("fill", colors.cognitiveScore);
-
-            g.append("circle")
-                .attr("cx", xScale(d.year))
                 .attr("cy", yScaleRight(d.anxietyRate))
                 .attr("r", 5)
                 .attr("fill", colors.anxietyRate);
         });
 
-        // Tech milestone markers
+        // Key events within our data range
         const milestones = [
-            { year: 2004, label: "Facebook", color: "#5d3a4d" },
-            { year: 2007, label: "iPhone", color: "#5d3a4d" },
-            { year: 2010, label: "iPad", color: "#7a5169" },
-            { year: 2016, label: "TikTok", color: "#c75d5d" }
+            { year: 2016, label: "TikTok", color: "#c75d5d" },
+            { year: 2020, label: "COVID", color: "#c75d5d" }
         ];
 
         milestones.forEach(m => {
@@ -872,8 +828,8 @@
 
         // Vertical line for year indicator
         const yearLine = g.append("line")
-            .attr("x1", xScale(2025))
-            .attr("x2", xScale(2025))
+            .attr("x1", xScale(2013))
+            .attr("x2", xScale(2013))
             .attr("y1", 0)
             .attr("y2", innerHeight)
             .attr("stroke", "#5d3a4d")
@@ -903,7 +859,6 @@
             return {
                 screenTime: lower.screenTime + t * (upper.screenTime - lower.screenTime),
                 outdoorPlay: lower.outdoorPlay + t * (upper.outdoorPlay - lower.outdoorPlay),
-                cognitiveScore: lower.cognitiveScore + t * (upper.cognitiveScore - lower.cognitiveScore),
                 anxietyRate: lower.anxietyRate + t * (upper.anxietyRate - lower.anxietyRate)
             };
         }
@@ -919,29 +874,22 @@
 
             // Update metric values
             document.getElementById('screen-value').textContent = data.screenTime.toFixed(1) + 'h';
-            document.getElementById('outdoor-value').textContent =
-                data.outdoorPlay >= 1 ? data.outdoorPlay.toFixed(1) + 'h' : Math.round(data.outdoorPlay * 60) + 'min';
-            document.getElementById('cognitive-value').textContent =
-                (data.cognitiveScore - 100).toFixed(0) + '%';
-            document.getElementById('anxiety-value').textContent =
-                '+' + (data.anxietyRate - 100).toFixed(0) + '%';
+            document.getElementById('outdoor-value').textContent = '~' + data.outdoorPlay.toFixed(1) + 'h';
+            document.getElementById('anxiety-value').textContent = data.anxietyRate.toFixed(0) + '%';
 
-            // Update trends (comparing to 1975 baseline)
-            const baseData = timeSeriesData[0]; // 1975
+            // Update trends (comparing to 2013 baseline)
+            const baseData = timeSeriesData[0]; // 2013
 
             const screenChange = ((data.screenTime - baseData.screenTime) / baseData.screenTime * 100).toFixed(0);
             const outdoorChange = ((data.outdoorPlay - baseData.outdoorPlay) / baseData.outdoorPlay * 100).toFixed(0);
-            const cognitiveChange = (data.cognitiveScore - baseData.cognitiveScore).toFixed(0);
             const anxietyChange = (data.anxietyRate - baseData.anxietyRate).toFixed(0);
 
             document.getElementById('screen-trend').textContent =
-                (screenChange >= 0 ? '+' : '') + screenChange + '% since 1975';
+                (screenChange >= 0 ? '+' : '') + screenChange + '% since 2013';
             document.getElementById('outdoor-trend').textContent =
-                outdoorChange + '% since 1975';
-            document.getElementById('cognitive-trend').textContent =
-                (cognitiveChange >= 0 ? '+' : '') + cognitiveChange + ' pts since 1975';
+                outdoorChange + '% since 2013';
             document.getElementById('anxiety-trend').textContent =
-                (anxietyChange >= 0 ? '+' : '') + anxietyChange + ' pts since 1975';
+                (anxietyChange >= 0 ? '+' : '') + anxietyChange + ' pts since 2013';
         }
 
         yearSlider.addEventListener('input', function() {
@@ -949,7 +897,7 @@
         });
 
         // Initial update
-        updateMetrics(1975);
+        updateMetrics(2013);
 
         // Animate skill cards on scroll
         const observer = new IntersectionObserver((entries) => {
