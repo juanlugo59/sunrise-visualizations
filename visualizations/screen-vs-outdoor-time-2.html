@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Day in the Life - Sunrise School</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Sunrise School Brand Colors */
+        :root {
+            --eggplant: #5d3a4d;
+            --eggplant-light: #7a5169;
+            --eggplant-dark: #4a2e3d;
+            --warm-brown: #8c6c5a;
+            --sage-green: #a1a680;
+            --soft-green: #afbcaf;
+            --charcoal: #212934;
+            --cream: #fcfaf2;
+            --warm-white: #f5f3eb;
+            --light-gray: #f2f3f5;
+            --sleep-blue: #6b7a8f;
+            --school-amber: #c4a574;
+            --meals-coral: #d4a39a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-white) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            color: var(--charcoal);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--eggplant);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--warm-brown);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .toggle-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            background: rgba(93, 58, 77, 0.1);
+            padding: 8px;
+            border-radius: 30px;
+        }
+
+        .toggle-btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--eggplant);
+        }
+
+        .toggle-btn.active {
+            background: var(--eggplant);
+            color: white;
+            box-shadow: 0 4px 15px rgba(93, 58, 77, 0.3);
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: rgba(93, 58, 77, 0.15);
+        }
+
+        #clock-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        #tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid var(--eggplant-light);
+            border-radius: 12px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            min-width: 200px;
+        }
+
+        #tooltip h3 {
+            color: var(--eggplant);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        #tooltip p {
+            color: var(--warm-brown);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        #tooltip .time-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            max-width: 700px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--charcoal);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .comparison-stats {
+            display: flex;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px 35px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            min-width: 180px;
+        }
+
+        .stat-card h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--warm-brown);
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: var(--warm-brown);
+            margin-top: 5px;
+        }
+
+        .stat-card.screen .value {
+            color: var(--eggplant);
+        }
+
+        .stat-card.outdoor .value {
+            color: var(--sage-green);
+        }
+
+        .insight-box {
+            background: rgba(161, 166, 128, 0.15);
+            border: 1px solid rgba(161, 166, 128, 0.4);
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin-top: 30px;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .insight-box p {
+            color: var(--charcoal);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .insight-box strong {
+            color: var(--eggplant);
+        }
+
+        .slider-container {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .slider-container label {
+            display: block;
+            color: var(--warm-brown);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .slider-container input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--light-gray);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--eggplant);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(93, 58, 77, 0.3);
+        }
+
+        .slider-value {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            color: var(--eggplant);
+            font-weight: 600;
+        }
+
+        .source {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: var(--warm-brown);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>A Day in the Life</h1>
+    <p class="subtitle">How children spend their 24 hours</p>
+
+    <div class="toggle-container">
+        <button class="toggle-btn active" data-mode="typical">Typical Child</button>
+        <button class="toggle-btn" data-mode="sunrise">Sunrise Student</button>
+    </div>
+
+    <div id="clock-container">
+        <svg id="clock"></svg>
+        <div id="tooltip"></div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="comparison-stats">
+        <div class="stat-card screen">
+            <h4>Screen Time</h4>
+            <div class="value" id="screen-stat">7.5</div>
+            <div class="label">hours per day</div>
+        </div>
+        <div class="stat-card outdoor">
+            <h4>Outdoor Time</h4>
+            <div class="value" id="outdoor-stat">7</div>
+            <div class="label" id="outdoor-label">minutes per day</div>
+        </div>
+    </div>
+
+    <div class="slider-container" id="slider-section">
+        <label>What if we reduced screen time?</label>
+        <input type="range" id="screen-slider" min="0" max="7.5" step="0.5" value="7.5">
+        <div class="slider-value">Screen time: <span id="slider-display">7.5</span> hours</div>
+    </div>
+
+    <div class="insight-box" id="insight">
+        <p>The average child spends <strong>82x more time</strong> on screens than outdoors. That's less outdoor time than federal prisoners receive for recreation.</p>
+    </div>
+
+    <p class="source">Source: Sunrise School Value Proposition, 2025</p>
+
+    <script>
+        // Data for typical child vs Sunrise student
+        const data = {
+            typical: [
+                { activity: "Sleep", hours: 9, color: "#6b7a8f", description: "Rest and recovery time" },
+                { activity: "School", hours: 6.5, color: "#c4a574", description: "Traditional classroom learning" },
+                { activity: "Screen Time", hours: 7.5, color: "#5d3a4d", description: "TV, tablets, phones, gaming" },
+                { activity: "Meals", hours: 1, color: "#d4a39a", description: "Breakfast, lunch, dinner" },
+                { activity: "Outdoor Play", hours: 0.08, color: "#a1a680", description: "Only 4-7 minutes outside" } // ~5 min
+            ],
+            sunrise: [
+                { activity: "Sleep", hours: 10, color: "#6b7a8f", description: "Prioritized rest for development" },
+                { activity: "School", hours: 6, color: "#c4a574", description: "Waldorf-inspired learning with arts, movement, nature" },
+                { activity: "Screen Time", hours: 0, color: "#5d3a4d", description: "Screen-free education" },
+                { activity: "Meals", hours: 1.5, color: "#d4a39a", description: "Mindful family meals" },
+                { activity: "Outdoor Play", hours: 3, color: "#a1a680", description: "Nature exploration, gardening, unstructured play" },
+                { activity: "Creative/Hands-on", hours: 2, color: "#afbcaf", description: "Art, music, woodworking, crafts" },
+                { activity: "Free Time", hours: 1.5, color: "#8c6c5a", description: "Reading, imaginative play, family time" }
+            ]
+        };
+
+        let currentMode = 'typical';
+        let currentData = data.typical;
+
+        // SVG setup
+        const width = 500;
+        const height = 500;
+        const radius = Math.min(width, height) / 2 - 40;
+
+        const svg = d3.select("#clock")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", `translate(${width/2}, ${height/2})`);
+
+        // Pie generator
+        const pie = d3.pie()
+            .value(d => d.hours)
+            .sort(null)
+            .padAngle(0.02);
+
+        // Arc generator
+        const arc = d3.arc()
+            .innerRadius(radius * 0.5)
+            .outerRadius(radius);
+
+        const arcHover = d3.arc()
+            .innerRadius(radius * 0.5)
+            .outerRadius(radius + 15);
+
+        // Tooltip
+        const tooltip = d3.select("#tooltip");
+
+        // Icons for each activity
+        const activityIcons = {
+            "Sleep": "🌙",
+            "School": "📚",
+            "Screen Time": "📱",
+            "Meals": "🍽️",
+            "Outdoor Play": "🌳",
+            "Creative/Hands-on": "🎨",
+            "Free Time": "✨"
+        };
+
+        // Arc for label positioning (slightly outward from center of slice)
+        const labelArc = d3.arc()
+            .innerRadius(radius * 0.7)
+            .outerRadius(radius * 0.7);
+
+        // Draw chart
+        function drawChart(dataset, animate = true) {
+            const arcs = pie(dataset);
+
+            // Remove old elements
+            svg.selectAll("path").remove();
+            svg.selectAll(".slice-label").remove();
+
+            // Add new paths
+            const paths = svg.selectAll("path")
+                .data(arcs)
+                .enter()
+                .append("path")
+                .attr("fill", d => d.data.color)
+                .attr("stroke", "white")
+                .attr("stroke-width", 2)
+                .style("cursor", "pointer")
+                .on("mouseover", function(event, d) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr("d", arcHover);
+
+                    const hours = d.data.hours;
+                    const timeDisplay = hours >= 1
+                        ? `${hours} hour${hours !== 1 ? 's' : ''}`
+                        : `${Math.round(hours * 60)} minutes`;
+
+                    tooltip.style("opacity", 1)
+                        .html(`
+                            <h3>${d.data.activity}</h3>
+                            <div class="time-amount" style="color: ${d.data.color}">${timeDisplay}</div>
+                            <p>${d.data.description}</p>
+                        `);
+
+                    const [x, y] = arc.centroid(d);
+                    tooltip.style("left", (width/2 + x + 20) + "px")
+                           .style("top", (height/2 + y - 40) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr("d", arc);
+                    tooltip.style("opacity", 0);
+                });
+
+            if (animate) {
+                paths.transition()
+                    .duration(1000)
+                    .attrTween("d", function(d) {
+                        const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+                        return t => arc(interpolate(t));
+                    });
+
+                // Add labels after animation
+                setTimeout(() => {
+                    addSliceLabels(arcs);
+                }, 1000);
+            } else {
+                paths.attr("d", arc);
+                addSliceLabels(arcs);
+            }
+
+            // Update legend
+            updateLegend(dataset);
+
+            // Update stats
+            updateStats(dataset);
+        }
+
+        function addSliceLabels(arcs) {
+            // Remove existing labels
+            svg.selectAll(".slice-label").remove();
+
+            arcs.forEach(d => {
+                // Only add labels for slices big enough to display them
+                const sliceAngle = d.endAngle - d.startAngle;
+                if (sliceAngle < 0.3) return; // Skip tiny slices
+
+                const [x, y] = labelArc.centroid(d);
+                const icon = activityIcons[d.data.activity] || "";
+
+                // Add icon
+                svg.append("text")
+                    .attr("class", "slice-label")
+                    .attr("x", x)
+                    .attr("y", y - 8)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "1.3rem")
+                    .text(icon);
+
+                // Add short label (abbreviate if needed)
+                let shortLabel = d.data.activity;
+                if (shortLabel === "Creative/Hands-on") shortLabel = "Creative";
+                if (shortLabel === "Outdoor Play") shortLabel = "Outdoor";
+                if (shortLabel === "Screen Time") shortLabel = "Screen";
+
+                // Only add text label if slice is big enough
+                if (sliceAngle > 0.5) {
+                    svg.append("text")
+                        .attr("class", "slice-label")
+                        .attr("x", x)
+                        .attr("y", y + 12)
+                        .attr("text-anchor", "middle")
+                        .attr("font-size", "0.7rem")
+                        .attr("font-weight", "600")
+                        .attr("fill", "white")
+                        .text(shortLabel);
+                }
+            });
+        }
+
+        function updateLegend(dataset) {
+            const legend = d3.select("#legend");
+            legend.html("");
+
+            dataset.forEach(item => {
+                const hours = item.hours;
+                const timeDisplay = hours >= 1
+                    ? `${hours}h`
+                    : `${Math.round(hours * 60)}m`;
+
+                legend.append("div")
+                    .attr("class", "legend-item")
+                    .html(`
+                        <div class="legend-color" style="background: ${item.color}"></div>
+                        <span>${item.activity} (${timeDisplay})</span>
+                    `);
+            });
+        }
+
+        function updateStats(dataset) {
+            const screenTime = dataset.find(d => d.activity === "Screen Time")?.hours || 0;
+            const outdoorTime = dataset.find(d => d.activity === "Outdoor Play")?.hours || 0;
+
+            d3.select("#screen-stat").text(screenTime);
+
+            if (outdoorTime >= 1) {
+                d3.select("#outdoor-stat").text(outdoorTime);
+                d3.select("#outdoor-label").text("hours per day");
+            } else {
+                d3.select("#outdoor-stat").text(Math.round(outdoorTime * 60));
+                d3.select("#outdoor-label").text("minutes per day");
+            }
+
+            // Update insight
+            if (currentMode === 'typical') {
+                const ratio = Math.round((screenTime * 60) / (outdoorTime * 60));
+                d3.select("#insight").html(`
+                    <p>The average child spends <strong>${ratio}x more time</strong> on screens than outdoors.
+                    That's less outdoor time than federal prisoners receive for recreation.</p>
+                `);
+            } else {
+                d3.select("#insight").html(`
+                    <p>Sunrise students experience <strong>zero screen time</strong> during school and
+                    <strong>3+ hours outdoors</strong> daily—building creativity, resilience, and emotional intelligence
+                    the way developmental science says children need.</p>
+                `);
+            }
+        }
+
+        // Toggle buttons
+        d3.selectAll(".toggle-btn").on("click", function() {
+            const mode = d3.select(this).attr("data-mode");
+            if (mode === currentMode) return;
+
+            currentMode = mode;
+            currentData = data[mode];
+
+            d3.selectAll(".toggle-btn").classed("active", false);
+            d3.select(this).classed("active", true);
+
+            // Show/hide slider
+            d3.select("#slider-section").style("display", mode === 'typical' ? 'block' : 'none');
+
+            // Reset slider
+            if (mode === 'typical') {
+                d3.select("#screen-slider").property("value", 7.5);
+                d3.select("#slider-display").text("7.5");
+            }
+
+            drawChart(currentData, true);
+        });
+
+        // Slider interaction
+        d3.select("#screen-slider").on("input", function() {
+            const newScreenTime = +this.value;
+            d3.select("#slider-display").text(newScreenTime);
+
+            // Recalculate - reduced screen time goes to outdoor
+            const screenReduction = 7.5 - newScreenTime;
+            const newOutdoorTime = 0.08 + screenReduction; // baseline + gained time
+
+            const modifiedData = data.typical.map(d => {
+                if (d.activity === "Screen Time") {
+                    return { ...d, hours: newScreenTime };
+                }
+                if (d.activity === "Outdoor Play") {
+                    return { ...d, hours: newOutdoorTime };
+                }
+                return d;
+            });
+
+            drawChart(modifiedData, false);
+
+            // Update insight based on slider
+            if (newScreenTime < 7.5) {
+                const gained = Math.round(screenReduction * 60);
+                d3.select("#insight").html(`
+                    <p>By reducing screen time by <strong>${screenReduction} hours</strong>,
+                    your child could gain <strong>${gained} more minutes</strong> of outdoor play,
+                    creative exploration, or family connection every day.</p>
+                `);
+            }
+        });
+
+        // Center text
+        svg.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "-0.5em")
+            .attr("fill", "#5d3a4d")
+            .attr("font-size", "1.2rem")
+            .attr("font-weight", "300")
+            .text("24");
+
+        svg.append("text")
+            .attr("text-anchor", "middle")
+            .attr("dy", "1em")
+            .attr("fill", "#5d3a4d")
+            .attr("font-size", "1.2rem")
+            .attr("font-weight", "300")
+            .text("HOURS");
+
+        // Initial draw
+        drawChart(currentData, true);
+    </script>
+</body>
+</html>

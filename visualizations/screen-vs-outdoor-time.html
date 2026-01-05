@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Time vs. Outdoor Time - Sunrise School</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Sunrise School Brand Colors */
+        :root {
+            --eggplant: #5d3a4d;
+            --eggplant-light: #7a5169;
+            --eggplant-dark: #4a2e3d;
+            --warm-brown: #8c6c5a;
+            --sage-green: #a1a680;
+            --soft-green: #afbcaf;
+            --charcoal: #212934;
+            --cream: #fcfaf2;
+            --warm-white: #f5f3eb;
+            --light-gray: #f2f3f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-white) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--charcoal);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--eggplant);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--warm-brown);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        #visualization {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .comparison-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 80px;
+            flex-wrap: wrap;
+        }
+
+        .time-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .time-label {
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .screen-label {
+            color: var(--eggplant);
+        }
+
+        .outdoor-label {
+            color: var(--sage-green);
+        }
+
+        .time-value {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .time-description {
+            font-size: 0.95rem;
+            color: var(--warm-brown);
+            max-width: 200px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .vs-text {
+            font-size: 2rem;
+            font-weight: 300;
+            color: var(--soft-green);
+        }
+
+        .prisoner-callout {
+            background: rgba(93, 58, 77, 0.08);
+            border: 1px solid rgba(93, 58, 77, 0.25);
+            border-radius: 12px;
+            padding: 20px 30px;
+            text-align: center;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .prisoner-callout p {
+            color: var(--eggplant);
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        .timeline-container {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 40px;
+        }
+
+        .timeline-title {
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--warm-brown);
+            margin-bottom: 20px;
+        }
+
+        .source {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: var(--warm-brown);
+            text-align: center;
+        }
+
+        .cta {
+            margin-top: 40px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, var(--sage-green) 0%, var(--soft-green) 100%);
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(161, 166, 128, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1>Where Does Childhood Go?</h1>
+    <p class="subtitle">A typical American child's daily time allocation</p>
+
+    <div id="visualization">
+        <div class="comparison-container">
+            <div class="time-block">
+                <span class="time-label screen-label">Screen Time</span>
+                <div id="screen-circle"></div>
+                <span class="time-value screen-label" id="screen-value">0</span>
+                <p class="time-description">Hours per day in front of screens</p>
+            </div>
+
+            <span class="vs-text">vs.</span>
+
+            <div class="time-block">
+                <span class="time-label outdoor-label">Outdoor Time</span>
+                <div id="outdoor-circle"></div>
+                <span class="time-value outdoor-label" id="outdoor-value">0</span>
+                <p class="time-description">Minutes per day outside in nature</p>
+            </div>
+        </div>
+
+        <div class="prisoner-callout">
+            <p>"American children spend less time outdoors than prisoners get for recreation."</p>
+        </div>
+
+        <div class="timeline-container">
+            <p class="timeline-title">Visualizing the disparity: 450 minutes vs. 5.5 minutes</p>
+            <div id="timeline"></div>
+        </div>
+    </div>
+
+    <p class="source">Source: Sunrise School Value Proposition, 2025</p>
+
+    <script>
+        // Data
+        const screenTimeMinutes = 7.5 * 60; // 450 minutes
+        const outdoorTimeMinutes = 5.5; // average of 4-7 minutes
+        const ratio = screenTimeMinutes / outdoorTimeMinutes; // ~82x
+
+        // Circle visualization - proportional areas
+        const maxRadius = 150;
+        const screenRadius = maxRadius;
+        const outdoorRadius = maxRadius * Math.sqrt(outdoorTimeMinutes / screenTimeMinutes);
+
+        // Create screen time circle
+        const screenSvg = d3.select("#screen-circle")
+            .append("svg")
+            .attr("width", maxRadius * 2 + 20)
+            .attr("height", maxRadius * 2 + 20);
+
+        const screenCircle = screenSvg.append("circle")
+            .attr("cx", maxRadius + 10)
+            .attr("cy", maxRadius + 10)
+            .attr("r", 0)
+            .attr("fill", "rgba(93, 58, 77, 0.25)")
+            .attr("stroke", "#5d3a4d")
+            .attr("stroke-width", 3);
+
+        // Create outdoor time circle
+        const outdoorSvg = d3.select("#outdoor-circle")
+            .append("svg")
+            .attr("width", maxRadius * 2 + 20)
+            .attr("height", maxRadius * 2 + 20);
+
+        const outdoorCircle = outdoorSvg.append("circle")
+            .attr("cx", maxRadius + 10)
+            .attr("cy", maxRadius + 10)
+            .attr("r", 0)
+            .attr("fill", "rgba(161, 166, 128, 0.35)")
+            .attr("stroke", "#a1a680")
+            .attr("stroke-width", 3);
+
+        // Create timeline bar comparison
+        const timelineWidth = 900;
+        const timelineHeight = 80;
+        const barHeight = 30;
+
+        const timelineSvg = d3.select("#timeline")
+            .append("svg")
+            .attr("width", "100%")
+            .attr("viewBox", `0 0 ${timelineWidth} ${timelineHeight}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+        // Scale for timeline
+        const xScale = d3.scaleLinear()
+            .domain([0, screenTimeMinutes])
+            .range([50, timelineWidth - 50]);
+
+        // Screen time bar
+        const screenBar = timelineSvg.append("rect")
+            .attr("x", 50)
+            .attr("y", 10)
+            .attr("width", 0)
+            .attr("height", barHeight)
+            .attr("fill", "rgba(93, 58, 77, 0.7)")
+            .attr("rx", 4);
+
+        // Outdoor time bar
+        const outdoorBar = timelineSvg.append("rect")
+            .attr("x", 50)
+            .attr("y", 50)
+            .attr("width", 0)
+            .attr("height", barHeight)
+            .attr("fill", "rgba(161, 166, 128, 0.85)")
+            .attr("rx", 4);
+
+        // Labels for bars
+        timelineSvg.append("text")
+            .attr("x", 45)
+            .attr("y", 30)
+            .attr("text-anchor", "end")
+            .attr("fill", "#5d3a4d")
+            .attr("font-size", "12px")
+            .text("Screen");
+
+        timelineSvg.append("text")
+            .attr("x", 45)
+            .attr("y", 70)
+            .attr("text-anchor", "end")
+            .attr("fill", "#a1a680")
+            .attr("font-size", "12px")
+            .text("Outdoor");
+
+        // Ratio annotation
+        const ratioText = timelineSvg.append("text")
+            .attr("x", timelineWidth / 2)
+            .attr("y", timelineHeight - 5)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#8c6c5a")
+            .attr("font-size", "14px")
+            .attr("opacity", 0);
+
+        // Animate everything
+        function animate() {
+            // Animate screen circle
+            screenCircle.transition()
+                .duration(2000)
+                .ease(d3.easeCubicOut)
+                .attr("r", screenRadius);
+
+            // Animate outdoor circle (delayed)
+            outdoorCircle.transition()
+                .delay(500)
+                .duration(1500)
+                .ease(d3.easeCubicOut)
+                .attr("r", outdoorRadius);
+
+            // Animate screen time counter
+            const screenCounter = { value: 0 };
+            d3.select(screenCounter)
+                .transition()
+                .duration(2000)
+                .ease(d3.easeCubicOut)
+                .tween("text", function() {
+                    const i = d3.interpolate(0, 7.5);
+                    return function(t) {
+                        d3.select("#screen-value").text(i(t).toFixed(1) + " hrs");
+                    };
+                });
+
+            // Animate outdoor time counter
+            const outdoorCounter = { value: 0 };
+            d3.select(outdoorCounter)
+                .transition()
+                .delay(500)
+                .duration(1500)
+                .ease(d3.easeCubicOut)
+                .tween("text", function() {
+                    const i = d3.interpolate(0, 5.5);
+                    return function(t) {
+                        d3.select("#outdoor-value").text(i(t).toFixed(1) + " min");
+                    };
+                });
+
+            // Animate timeline bars
+            screenBar.transition()
+                .delay(1000)
+                .duration(1500)
+                .ease(d3.easeCubicOut)
+                .attr("width", xScale(screenTimeMinutes) - 50);
+
+            outdoorBar.transition()
+                .delay(1200)
+                .duration(1500)
+                .ease(d3.easeCubicOut)
+                .attr("width", xScale(outdoorTimeMinutes) - 50);
+
+            // Show ratio text
+            ratioText.transition()
+                .delay(2500)
+                .duration(500)
+                .attr("opacity", 1)
+                .text(`Screen time is ${Math.round(ratio)}x longer than outdoor time`);
+        }
+
+        // Start animation when page loads
+        setTimeout(animate, 500);
+
+        // Add click to replay
+        document.body.addEventListener("click", function(e) {
+            if (e.target.tagName !== "BUTTON") {
+                // Reset
+                screenCircle.attr("r", 0);
+                outdoorCircle.attr("r", 0);
+                screenBar.attr("width", 0);
+                outdoorBar.attr("width", 0);
+                ratioText.attr("opacity", 0);
+                d3.select("#screen-value").text("0");
+                d3.select("#outdoor-value").text("0");
+
+                // Replay
+                setTimeout(animate, 100);
+            }
+        });
+    </script>
+</body>
+</html>

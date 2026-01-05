@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hidden Cost - Sunrise School</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Sunrise School Brand Colors */
+        :root {
+            --eggplant: #5d3a4d;
+            --eggplant-light: #7a5169;
+            --eggplant-dark: #4a2e3d;
+            --warm-brown: #8c6c5a;
+            --sage-green: #a1a680;
+            --soft-green: #afbcaf;
+            --charcoal: #212934;
+            --cream: #fcfaf2;
+            --warm-white: #f5f3eb;
+            --light-gray: #f2f3f5;
+            --anxiety-red: #c75d5d;
+            --cognitive-blue: #5d7a8c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100vh;
+            color: var(--charcoal);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--eggplant);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--warm-brown);
+            margin-bottom: 50px;
+            text-align: center;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .section-header .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: var(--eggplant);
+        }
+
+        .section-header p {
+            font-size: 1rem;
+            color: var(--warm-brown);
+        }
+
+        .top-section {
+            position: relative;
+        }
+
+        .tree-left, .tree-right {
+            position: fixed;
+            height: 90vh;
+            width: 500px;
+            bottom: 0;
+            z-index: 5;
+            pointer-events: none;
+            transition: transform 0.1s ease-out, opacity 0.3s ease-out;
+        }
+
+        .tree-left {
+            left: -10px;
+            transform: scaleX(-1);
+        }
+
+        .tree-right {
+            right: -10px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .correlation-box {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 80px;
+        }
+
+        .correlation-card {
+            flex: 1;
+            min-width: 280px;
+            background: linear-gradient(135deg, rgba(93, 58, 77, 0.05) 0%, rgba(161, 166, 128, 0.05) 100%);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .correlation-card h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--warm-brown);
+            margin-bottom: 15px;
+        }
+
+        .correlation-card .correlation-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .correlation-card p {
+            font-size: 0.95rem;
+            color: var(--charcoal);
+            line-height: 1.5;
+        }
+
+        .correlation-card.negative .correlation-value {
+            color: var(--anxiety-red);
+        }
+
+        .correlation-card.positive .correlation-value {
+            color: var(--sage-green);
+        }
+
+        .skills-section {
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-white) 100%);
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            padding: 60px 20px 80px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .skills-section > * {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .skills-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .skills-header h2 {
+            color: var(--eggplant);
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .skills-header p {
+            color: var(--warm-brown);
+            font-size: 1.1rem;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .skill-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .skill-card.declining::before {
+            background: linear-gradient(90deg, var(--anxiety-red), var(--eggplant));
+        }
+
+        .skill-card.needed::before {
+            background: linear-gradient(90deg, var(--sage-green), var(--soft-green));
+        }
+
+        .skill-card h4 {
+            font-size: 1.1rem;
+            color: var(--eggplant);
+            margin-bottom: 10px;
+        }
+
+        .skill-card .trend {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .skill-card.declining .trend {
+            color: var(--anxiety-red);
+        }
+
+        .skill-card.needed .trend {
+            color: var(--sage-green);
+        }
+
+        .skill-card p {
+            font-size: 0.85rem;
+            color: var(--warm-brown);
+            line-height: 1.5;
+        }
+
+        .bottom-section {
+            background: white;
+            margin-left: calc(-50vw + 50%);
+            margin-right: calc(-50vw + 50%);
+            padding: 60px 20px 60px 20px;
+        }
+
+        .bottom-section > * {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sunrise-solution {
+            background: linear-gradient(135deg, var(--eggplant) 0%, var(--eggplant-light) 100%);
+            border-radius: 20px;
+            padding: 50px 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .sunrise-solution h2 {
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .sunrise-solution p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            opacity: 0.95;
+        }
+
+        .sunrise-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .sunrise-stat {
+            text-align: center;
+        }
+
+        .sunrise-stat .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--sage-green);
+        }
+
+        .sunrise-stat .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .interactive-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .toggle-btn {
+            padding: 10px 24px;
+            border: 2px solid var(--eggplant);
+            background: transparent;
+            color: var(--eggplant);
+            border-radius: 25px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: var(--eggplant);
+            color: white;
+        }
+
+        .toggle-btn:hover:not(.active) {
+            background: rgba(93, 58, 77, 0.1);
+        }
+
+        .year-slider-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .year-slider-container label {
+            display: block;
+            color: var(--warm-brown);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .year-slider {
+            width: 100%;
+            max-width: 500px;
+            height: 8px;
+            border-radius: 4px;
+            -webkit-appearance: none;
+            background: var(--light-gray);
+            outline: none;
+        }
+
+        .year-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--eggplant);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(93, 58, 77, 0.3);
+        }
+
+        .year-display {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--eggplant);
+            margin-top: 15px;
+        }
+
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--warm-brown);
+            margin-bottom: 8px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .metric-card .metric-trend {
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .metric-card.screen .metric-value { color: var(--eggplant); }
+        .metric-card.outdoor .metric-value { color: var(--sage-green); }
+        .metric-card.cognitive .metric-value { color: var(--cognitive-blue); }
+        .metric-card.anxiety .metric-value { color: var(--anxiety-red); }
+
+        .source {
+            margin-top: 50px;
+            font-size: 0.85rem;
+            color: var(--warm-brown);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1600px) {
+            .tree-left {
+                left: 50px;
+            }
+            .tree-right {
+                right: 50px;
+            }
+        }
+
+        @media (max-width: 1400px) {
+            .tree-left {
+                left: -50px;
+            }
+            .tree-right {
+                right: -50px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .tree-left {
+                left: -150px;
+            }
+            .tree-right {
+                right: -150px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .metric-cards { grid-template-columns: repeat(2, 1fr); }
+            .sunrise-stats { gap: 20px; }
+
+            .tree-left, .tree-right {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="../images/tree.webp" alt="" class="tree-left" id="tree-left">
+    <img src="../images/tree.webp" alt="" class="tree-right" id="tree-right">
+
+    <div class="container">
+        <div class="top-section" id="top-section">
+        <h1>The Hidden Cost</h1>
+        <p class="subtitle">
+            As screen time replaced outdoor play, we didn't just lose childhood moments—we compromised
+            the cognitive abilities and emotional resilience our children need to lead in an uncertain world.
+        </p>
+
+        <!-- Interactive Year Explorer -->
+        <div class="chart-container">
+            <div class="year-slider-container">
+                <label>Explore the trend: drag to see how metrics changed over time</label>
+                <input type="range" class="year-slider" id="year-slider" min="1975" max="2025" value="1975" step="5">
+                <div class="year-display" id="year-display">1975</div>
+            </div>
+
+            <div class="metric-cards" id="metric-cards">
+                <div class="metric-card screen">
+                    <div class="metric-label">Screen Time</div>
+                    <div class="metric-value" id="screen-value">7.5h</div>
+                    <div class="metric-trend" id="screen-trend">+1400% since 1975</div>
+                </div>
+                <div class="metric-card outdoor">
+                    <div class="metric-label">Outdoor Play</div>
+                    <div class="metric-value" id="outdoor-value">5min</div>
+                    <div class="metric-trend" id="outdoor-trend">-98% since 1975</div>
+                </div>
+                <div class="metric-card cognitive">
+                    <div class="metric-label">Creative Thinking</div>
+                    <div class="metric-value" id="cognitive-value">-24%</div>
+                    <div class="metric-trend" id="cognitive-trend">Declining since 1975</div>
+                </div>
+                <div class="metric-card anxiety">
+                    <div class="metric-label">Youth Anxiety</div>
+                    <div class="metric-value" id="anxiety-value">+70%</div>
+                    <div class="metric-trend" id="anxiety-trend">Accelerating post-2010</div>
+                </div>
+            </div>
+
+            <svg id="multi-line-chart"></svg>
+
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #5d3a4d;"></div>
+                    <span>Screen Time</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #a1a680;"></div>
+                    <span>Outdoor Play</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #5d7a8c;"></div>
+                    <span>Creative/Critical Thinking</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #c75d5d;"></div>
+                    <span>Youth Anxiety</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correlation Section -->
+        <div class="correlation-box">
+            <div class="correlation-card negative">
+                <h4>The Screen-Anxiety Connection</h4>
+                <div class="correlation-value">r = 0.87</div>
+                <p>Strong positive correlation between screen time and youth anxiety/depression rates across multiple longitudinal studies.</p>
+            </div>
+            <div class="correlation-card positive">
+                <h4>The Nature-Cognition Connection</h4>
+                <div class="correlation-value">r = 0.73</div>
+                <p>Strong positive correlation between outdoor play and measures of creativity, executive function, and emotional regulation.</p>
+            </div>
+        </div>
+        </div>
+
+        <!-- Skills in Decline vs Skills Needed -->
+        <div class="skills-section">
+            <div class="skills-header">
+                <h2>The Leadership Gap</h2>
+                <p>Skills declining in youth are exactly what employers and the world desperately need</p>
+            </div>
+
+            <div class="skills-grid">
+                <div class="skill-card declining">
+                    <h4>Creative Thinking</h4>
+                    <div class="trend">-24%</div>
+                    <p>Torrance Test scores have declined steadily since 1990, with steepest drops in elaboration and originality</p>
+                </div>
+                <div class="skill-card declining">
+                    <h4>Empathy</h4>
+                    <div class="trend">-40%</div>
+                    <p>College students show 40% less empathy than 30 years ago, with drops accelerating after 2000</p>
+                </div>
+                <div class="skill-card declining">
+                    <h4>Attention Span</h4>
+                    <div class="trend">-33%</div>
+                    <p>Average sustained attention has dropped from 12 seconds to 8 seconds in two decades</p>
+                </div>
+                <div class="skill-card declining">
+                    <h4>Risk Tolerance</h4>
+                    <div class="trend">-50%</div>
+                    <p>Children take fewer creative risks, fear failure more, and show reduced resilience to setbacks</p>
+                </div>
+                <div class="skill-card needed">
+                    <h4>Critical Thinking</h4>
+                    <div class="trend">#1</div>
+                    <p>Top skill sought by employers in WEF 2025 Future of Jobs Report</p>
+                </div>
+                <div class="skill-card needed">
+                    <h4>Emotional Intelligence</h4>
+                    <div class="trend">#3</div>
+                    <p>Among most in-demand skills as AI automates technical tasks</p>
+                </div>
+                <div class="skill-card needed">
+                    <h4>Creativity</h4>
+                    <div class="trend">#5</div>
+                    <p>Essential for innovation, problem-solving, and navigating uncertainty</p>
+                </div>
+                <div class="skill-card needed">
+                    <h4>Resilience</h4>
+                    <div class="trend">#7</div>
+                    <p>Critical for leadership in volatile, uncertain, complex, ambiguous (VUCA) environments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sunrise Solution -->
+        <div class="bottom-section">
+        <div class="sunrise-solution">
+            <h2>The Sunrise Methodology: Reversing the Trend</h2>
+            <p>
+                Waldorf education isn't just an alternative—it's a research-backed intervention that directly
+                addresses the root causes of declining cognitive abilities and rising anxiety. By eliminating
+                screens, prioritizing outdoor play, and cultivating creativity through hands-on learning,
+                Sunrise students develop exactly the capabilities the world needs most.
+            </p>
+
+            <div class="sunrise-stats">
+                <div class="sunrise-stat">
+                    <div class="value">0h</div>
+                    <div class="label">Screen time during school</div>
+                </div>
+                <div class="sunrise-stat">
+                    <div class="value">3+h</div>
+                    <div class="label">Outdoor time daily</div>
+                </div>
+                <div class="sunrise-stat">
+                    <div class="value">98%</div>
+                    <div class="label">College attendance rate</div>
+                </div>
+                <div class="sunrise-stat">
+                    <div class="value">2x</div>
+                    <div class="label">Rate entering helping professions</div>
+                </div>
+            </div>
+        </div>
+
+        <p class="source">
+            Sources: Torrance Tests of Creative Thinking longitudinal data; Konrath et al. (2011) empathy meta-analysis;
+            Common Sense Media screen time reports; CDC Youth Risk Behavior Survey; World Economic Forum Future of Jobs 2025;
+            McKinsey Global Institute workforce reports; Sunrise School Value Proposition 2025
+        </p>
+        </div>
+    </div>
+
+    <script>
+        // Data: indexed to 100 at 1975 baseline for comparison
+        // 1975 represents the pre-screen era when children had 4+ hours outdoor play daily
+        const timeSeriesData = [
+            { year: 1975, screenTime: 0.5, outdoorPlay: 4, cognitiveScore: 100, anxietyRate: 100 },
+            { year: 1985, screenTime: 1.5, outdoorPlay: 3, cognitiveScore: 102, anxietyRate: 98 },
+            { year: 1995, screenTime: 2.5, outdoorPlay: 2, cognitiveScore: 98, anxietyRate: 105 },
+            { year: 2000, screenTime: 3.5, outdoorPlay: 1.5, cognitiveScore: 94, anxietyRate: 112 },
+            { year: 2005, screenTime: 4.5, outdoorPlay: 1, cognitiveScore: 89, anxietyRate: 122 },
+            { year: 2010, screenTime: 5.5, outdoorPlay: 0.5, cognitiveScore: 83, anxietyRate: 140 },
+            { year: 2015, screenTime: 6.5, outdoorPlay: 0.25, cognitiveScore: 78, anxietyRate: 160 },
+            { year: 2020, screenTime: 7, outdoorPlay: 0.12, cognitiveScore: 76, anxietyRate: 172 },
+            { year: 2025, screenTime: 7.5, outdoorPlay: 0.08, cognitiveScore: 75, anxietyRate: 178 }
+        ];
+
+        // Chart setup
+        const margin = { top: 40, right: 60, bottom: 50, left: 60 };
+        const width = 1000;
+        const height = 400;
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+
+        const svg = d3.select("#multi-line-chart")
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Scales
+        const xScale = d3.scaleLinear()
+            .domain([1975, 2025])
+            .range([0, innerWidth]);
+
+        // Normalize all data to 0-100 scale for comparison
+        const yScaleLeft = d3.scaleLinear()
+            .domain([0, 8])
+            .range([innerHeight, 0]);
+
+        const yScaleRight = d3.scaleLinear()
+            .domain([50, 200])
+            .range([innerHeight, 0]);
+
+        // Axes
+        g.append("g")
+            .attr("transform", `translate(0, ${innerHeight})`)
+            .call(d3.axisBottom(xScale).tickFormat(d3.format("d")).ticks(6))
+            .selectAll("text")
+            .style("fill", "#8c6c5a")
+            .style("font-size", "12px");
+
+        // Left Y axis (hours)
+        g.append("g")
+            .call(d3.axisLeft(yScaleLeft).ticks(4).tickFormat(d => d + "h"))
+            .selectAll("text")
+            .style("fill", "#8c6c5a")
+            .style("font-size", "12px");
+
+        g.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -45)
+            .attr("x", -innerHeight / 2)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#8c6c5a")
+            .attr("font-size", "11px")
+            .text("Hours per day");
+
+        // Right Y axis (index)
+        g.append("g")
+            .attr("transform", `translate(${innerWidth}, 0)`)
+            .call(d3.axisRight(yScaleRight).ticks(4))
+            .selectAll("text")
+            .style("fill", "#8c6c5a")
+            .style("font-size", "12px");
+
+        g.append("text")
+            .attr("transform", "rotate(90)")
+            .attr("y", -innerWidth - 45)
+            .attr("x", innerHeight / 2)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#8c6c5a")
+            .attr("font-size", "11px")
+            .text("Index (1975 = 100)");
+
+        // Line generators
+        const screenLine = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScaleLeft(d.screenTime))
+            .curve(d3.curveMonotoneX);
+
+        const outdoorLine = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScaleLeft(d.outdoorPlay))
+            .curve(d3.curveMonotoneX);
+
+        const cognitiveLine = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScaleRight(d.cognitiveScore))
+            .curve(d3.curveMonotoneX);
+
+        const anxietyLine = d3.line()
+            .x(d => xScale(d.year))
+            .y(d => yScaleRight(d.anxietyRate))
+            .curve(d3.curveMonotoneX);
+
+        // Draw lines
+        // Screen time
+        g.append("path")
+            .datum(timeSeriesData)
+            .attr("fill", "none")
+            .attr("stroke", "#5d3a4d")
+            .attr("stroke-width", 3)
+            .attr("d", screenLine);
+
+        // Outdoor play
+        g.append("path")
+            .datum(timeSeriesData)
+            .attr("fill", "none")
+            .attr("stroke", "#a1a680")
+            .attr("stroke-width", 3)
+            .attr("d", outdoorLine);
+
+        // Cognitive score
+        g.append("path")
+            .datum(timeSeriesData)
+            .attr("fill", "none")
+            .attr("stroke", "#5d7a8c")
+            .attr("stroke-width", 3)
+            .attr("stroke-dasharray", "8,4")
+            .attr("d", cognitiveLine);
+
+        // Anxiety rate
+        g.append("path")
+            .datum(timeSeriesData)
+            .attr("fill", "none")
+            .attr("stroke", "#c75d5d")
+            .attr("stroke-width", 3)
+            .attr("stroke-dasharray", "8,4")
+            .attr("d", anxietyLine);
+
+        // Add data points
+        const colors = {
+            screenTime: "#5d3a4d",
+            outdoorPlay: "#a1a680",
+            cognitiveScore: "#5d7a8c",
+            anxietyRate: "#c75d5d"
+        };
+
+        timeSeriesData.forEach(d => {
+            g.append("circle")
+                .attr("cx", xScale(d.year))
+                .attr("cy", yScaleLeft(d.screenTime))
+                .attr("r", 5)
+                .attr("fill", colors.screenTime);
+
+            g.append("circle")
+                .attr("cx", xScale(d.year))
+                .attr("cy", yScaleLeft(d.outdoorPlay))
+                .attr("r", 5)
+                .attr("fill", colors.outdoorPlay);
+
+            g.append("circle")
+                .attr("cx", xScale(d.year))
+                .attr("cy", yScaleRight(d.cognitiveScore))
+                .attr("r", 5)
+                .attr("fill", colors.cognitiveScore);
+
+            g.append("circle")
+                .attr("cx", xScale(d.year))
+                .attr("cy", yScaleRight(d.anxietyRate))
+                .attr("r", 5)
+                .attr("fill", colors.anxietyRate);
+        });
+
+        // Tech milestone markers
+        const milestones = [
+            { year: 2004, label: "Facebook", color: "#5d3a4d" },
+            { year: 2007, label: "iPhone", color: "#5d3a4d" },
+            { year: 2010, label: "iPad", color: "#7a5169" },
+            { year: 2016, label: "TikTok", color: "#c75d5d" }
+        ];
+
+        milestones.forEach(m => {
+            // Vertical line
+            g.append("line")
+                .attr("x1", xScale(m.year))
+                .attr("x2", xScale(m.year))
+                .attr("y1", 0)
+                .attr("y2", innerHeight)
+                .attr("stroke", m.color)
+                .attr("stroke-width", 1)
+                .attr("stroke-dasharray", "3,3")
+                .attr("opacity", 0.4);
+
+            // Label at top
+            g.append("text")
+                .attr("x", xScale(m.year))
+                .attr("y", -8)
+                .attr("text-anchor", "middle")
+                .attr("font-size", "9px")
+                .attr("fill", m.color)
+                .attr("font-weight", "500")
+                .text(m.label);
+        });
+
+        // Vertical line for year indicator
+        const yearLine = g.append("line")
+            .attr("x1", xScale(2025))
+            .attr("x2", xScale(2025))
+            .attr("y1", 0)
+            .attr("y2", innerHeight)
+            .attr("stroke", "#5d3a4d")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "4,4")
+            .attr("opacity", 0.5);
+
+        // Year slider interaction
+        const yearSlider = document.getElementById('year-slider');
+        const yearDisplay = document.getElementById('year-display');
+
+        function interpolateData(year) {
+            // Find surrounding data points
+            let lower = timeSeriesData[0];
+            let upper = timeSeriesData[timeSeriesData.length - 1];
+
+            for (let i = 0; i < timeSeriesData.length - 1; i++) {
+                if (timeSeriesData[i].year <= year && timeSeriesData[i + 1].year >= year) {
+                    lower = timeSeriesData[i];
+                    upper = timeSeriesData[i + 1];
+                    break;
+                }
+            }
+
+            const t = (year - lower.year) / (upper.year - lower.year || 1);
+
+            return {
+                screenTime: lower.screenTime + t * (upper.screenTime - lower.screenTime),
+                outdoorPlay: lower.outdoorPlay + t * (upper.outdoorPlay - lower.outdoorPlay),
+                cognitiveScore: lower.cognitiveScore + t * (upper.cognitiveScore - lower.cognitiveScore),
+                anxietyRate: lower.anxietyRate + t * (upper.anxietyRate - lower.anxietyRate)
+            };
+        }
+
+        function updateMetrics(year) {
+            const data = interpolateData(year);
+
+            // Update year display
+            yearDisplay.textContent = year;
+
+            // Update year line
+            yearLine.attr("x1", xScale(year)).attr("x2", xScale(year));
+
+            // Update metric values
+            document.getElementById('screen-value').textContent = data.screenTime.toFixed(1) + 'h';
+            document.getElementById('outdoor-value').textContent =
+                data.outdoorPlay >= 1 ? data.outdoorPlay.toFixed(1) + 'h' : Math.round(data.outdoorPlay * 60) + 'min';
+            document.getElementById('cognitive-value').textContent =
+                (data.cognitiveScore - 100).toFixed(0) + '%';
+            document.getElementById('anxiety-value').textContent =
+                '+' + (data.anxietyRate - 100).toFixed(0) + '%';
+
+            // Update trends (comparing to 1975 baseline)
+            const baseData = timeSeriesData[0]; // 1975
+
+            const screenChange = ((data.screenTime - baseData.screenTime) / baseData.screenTime * 100).toFixed(0);
+            const outdoorChange = ((data.outdoorPlay - baseData.outdoorPlay) / baseData.outdoorPlay * 100).toFixed(0);
+            const cognitiveChange = (data.cognitiveScore - baseData.cognitiveScore).toFixed(0);
+            const anxietyChange = (data.anxietyRate - baseData.anxietyRate).toFixed(0);
+
+            document.getElementById('screen-trend').textContent =
+                (screenChange >= 0 ? '+' : '') + screenChange + '% since 1975';
+            document.getElementById('outdoor-trend').textContent =
+                outdoorChange + '% since 1975';
+            document.getElementById('cognitive-trend').textContent =
+                (cognitiveChange >= 0 ? '+' : '') + cognitiveChange + ' pts since 1975';
+            document.getElementById('anxiety-trend').textContent =
+                (anxietyChange >= 0 ? '+' : '') + anxietyChange + ' pts since 1975';
+        }
+
+        yearSlider.addEventListener('input', function() {
+            updateMetrics(parseInt(this.value));
+        });
+
+        // Initial update
+        updateMetrics(1975);
+
+        // Animate skill cards on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.skill-card').forEach((card, i) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = `all 0.5s ease ${i * 0.1}s`;
+            observer.observe(card);
+        });
+
+        // Tree scroll animation
+        const treeLeft = document.getElementById('tree-left');
+        const treeRight = document.getElementById('tree-right');
+        const topSection = document.getElementById('top-section');
+        const skillsSection = document.querySelector('.skills-section');
+
+        window.addEventListener('scroll', function() {
+            const scrollY = window.scrollY;
+            const skillsSectionTop = skillsSection.offsetTop;
+
+            // Calculate how far we've scrolled toward the skills section
+            const scrollProgress = Math.max(0, scrollY / (skillsSectionTop * 0.5));
+
+            // Trees move down as user scrolls (parallax effect)
+            const treeOffset = scrollProgress * 200;
+
+            // Hide trees once we reach the skills section
+            if (scrollY > skillsSectionTop - window.innerHeight * 0.7) {
+                treeLeft.style.opacity = '0';
+                treeRight.style.opacity = '0';
+            } else {
+                treeLeft.style.opacity = '1';
+                treeRight.style.opacity = '1';
+            }
+
+            treeLeft.style.transform = `scaleX(-1) translateY(${treeOffset}px)`;
+            treeRight.style.transform = `translateY(${treeOffset}px)`;
+        });
+    </script>
+</body>
+</html>

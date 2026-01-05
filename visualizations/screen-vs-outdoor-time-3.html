@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Shrinking Childhood - Sunrise School</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Sunrise School Brand Colors */
+        :root {
+            --eggplant: #5d3a4d;
+            --eggplant-light: #7a5169;
+            --eggplant-dark: #4a2e3d;
+            --warm-brown: #8c6c5a;
+            --sage-green: #a1a680;
+            --soft-green: #afbcaf;
+            --charcoal: #212934;
+            --cream: #fcfaf2;
+            --warm-white: #f5f3eb;
+            --light-gray: #f2f3f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-white) 100%);
+            min-height: 100vh;
+            color: var(--charcoal);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            text-align: center;
+            color: var(--eggplant);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--warm-brown);
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        #timeline-container {
+            position: relative;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+
+        .era-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .era-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .era-card:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .era-year {
+            flex-shrink: 0;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .era-year .decade {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .era-year .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        .era-content {
+            flex: 1;
+        }
+
+        .era-content h3 {
+            color: var(--eggplant);
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .era-content p {
+            color: var(--warm-brown);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .outdoor-time-bar {
+            height: 30px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            background: var(--light-gray);
+        }
+
+        .outdoor-time-fill {
+            height: 100%;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: width 1s ease;
+        }
+
+        .milestone-marker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(93, 58, 77, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--eggplant);
+            margin-top: 10px;
+        }
+
+        .milestone-marker svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        #comparison-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .comparison-header h2 {
+            color: var(--eggplant);
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .comparison-header p {
+            color: var(--warm-brown);
+        }
+
+        #area-chart {
+            width: 100%;
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--charcoal);
+        }
+
+        .chart-legend-item .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .callout-box {
+            background: linear-gradient(135deg, rgba(93, 58, 77, 0.1) 0%, rgba(161, 166, 128, 0.1) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .callout-box h3 {
+            color: var(--eggplant);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .callout-box p {
+            color: var(--charcoal);
+            font-size: 1.1rem;
+            line-height: 1.7;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .callout-box strong {
+            color: var(--eggplant);
+        }
+
+        .play-btn {
+            display: block;
+            margin: 40px auto 0;
+            padding: 15px 40px;
+            background: var(--eggplant);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .play-btn:hover {
+            background: var(--eggplant-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(93, 58, 77, 0.3);
+        }
+
+        .source {
+            margin-top: 40px;
+            font-size: 0.85rem;
+            color: var(--warm-brown);
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .era-card {
+                flex-direction: column !important;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Shrinking Childhood</h1>
+        <p class="subtitle">How outdoor play has vanished over 50 years</p>
+
+        <div id="timeline-container">
+            <!-- Era cards will be inserted here -->
+        </div>
+
+        <div id="comparison-section">
+            <div class="comparison-header">
+                <h2>The Great Displacement</h2>
+                <p>As screen time rose, outdoor play disappeared</p>
+            </div>
+            <svg id="area-chart"></svg>
+            <div class="chart-legend">
+                <div class="chart-legend-item">
+                    <div class="dot" style="background: #5d3a4d;"></div>
+                    <span>Screen Time</span>
+                </div>
+                <div class="chart-legend-item">
+                    <div class="dot" style="background: #a1a680;"></div>
+                    <span>Outdoor Play</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="callout-box">
+            <h3>The Question Isn't Whether We Need Change</h3>
+            <p>It's <strong>who will provide it</strong>. Sunrise School offers children what developmental science
+            says they desperately need: unstructured outdoor play, hands-on creation, face-to-face connection,
+            and the freedom to simply be children.</p>
+        </div>
+
+        <button class="play-btn" id="replay-btn">Replay Animation</button>
+
+        <p class="source">Sources: American Academy of Pediatrics, Common Sense Media, National Trust UK, Sunrise School Value Proposition 2025</p>
+    </div>
+
+    <script>
+        // Historical data
+        const eras = [
+            {
+                decade: "1970s",
+                year: 1975,
+                outdoorHours: 4,
+                screenHours: 2,
+                title: "The Free-Range Generation",
+                description: "Children roamed neighborhoods freely, building forts, climbing trees, and playing until streetlights came on. Outdoor play was the default—screens barely existed.",
+                milestone: "Average child: 4+ hours outside daily",
+                color: "#a1a680"
+            },
+            {
+                decade: "1990s",
+                year: 1995,
+                outdoorHours: 2,
+                screenHours: 3,
+                title: "The Transition Begins",
+                description: "Video games and cable TV began competing for attention. Parents started scheduling playdates. The first signs of 'stranger danger' culture emerged.",
+                milestone: "Nintendo & cable TV enter homes",
+                color: "#afbcaf"
+            },
+            {
+                decade: "2000s",
+                year: 2005,
+                outdoorHours: 1,
+                screenHours: 5,
+                title: "The Indoor Migration",
+                description: "Internet becomes ubiquitous. Facebook launches (2004), YouTube follows (2005). Children's lives increasingly move indoors and online. Organized activities replace spontaneous play.",
+                milestone: "Facebook, YouTube launch",
+                color: "#8c6c5a"
+            },
+            {
+                decade: "2010s",
+                year: 2015,
+                outdoorHours: 0.5,
+                screenHours: 6.5,
+                title: "The Smartphone Era",
+                description: "iPad launches (2010). Instagram (2010) and Snapchat (2011) capture teen attention. Kids get phones younger. TikTok arrives (2016). Mental health concerns begin rising sharply.",
+                milestone: "iPad, Instagram, TikTok transform childhood",
+                color: "#7a5169"
+            },
+            {
+                decade: "Today",
+                year: 2025,
+                outdoorHours: 0.08,
+                screenHours: 7.5,
+                title: "The Crisis Point",
+                description: "Children average 7.5 hours of screen time but just 4-7 minutes outdoors—less than federal prisoners. Anxiety and depression have surged 30%. Short-form video dominates attention.",
+                milestone: "Less outdoor time than prisoners",
+                color: "#5d3a4d"
+            }
+        ];
+
+        // Create era cards
+        const timelineContainer = d3.select("#timeline-container");
+
+        eras.forEach((era, i) => {
+            const card = timelineContainer.append("div")
+                .attr("class", "era-card")
+                .attr("data-index", i);
+
+            const yearCircle = card.append("div")
+                .attr("class", "era-year")
+                .style("background", era.color);
+
+            yearCircle.append("span")
+                .attr("class", "decade")
+                .text(era.decade);
+
+            const content = card.append("div")
+                .attr("class", "era-content");
+
+            content.append("h3").text(era.title);
+            content.append("p").text(era.description);
+
+            const barContainer = content.append("div")
+                .attr("class", "outdoor-time-bar");
+
+            barContainer.append("div")
+                .attr("class", "outdoor-time-fill")
+                .style("background", era.color)
+                .style("width", "0%")
+                .attr("data-width", (era.outdoorHours / 4) * 100)
+                .text(era.outdoorHours >= 1 ? `${era.outdoorHours}h outdoors` : `${Math.round(era.outdoorHours * 60)}m outdoors`);
+
+            content.append("div")
+                .attr("class", "milestone-marker")
+                .html(`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>${era.milestone}`);
+        });
+
+        // Area chart
+        const chartData = eras.map(e => ({
+            year: e.year,
+            outdoor: e.outdoorHours,
+            screen: e.screenHours
+        }));
+
+        const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+        const chartWidth = 800;
+        const chartHeight = 350;
+        const innerWidth = chartWidth - margin.left - margin.right;
+        const innerHeight = chartHeight - margin.top - margin.bottom;
+
+        const chartSvg = d3.select("#area-chart")
+            .attr("viewBox", `0 0 ${chartWidth} ${chartHeight}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+        const chartG = chartSvg.append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const xScale = d3.scaleLinear()
+            .domain([1975, 2025])
+            .range([0, innerWidth]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 8])
+            .range([innerHeight, 0]);
+
+        // Axes
+        chartG.append("g")
+            .attr("transform", `translate(0, ${innerHeight})`)
+            .call(d3.axisBottom(xScale).tickFormat(d3.format("d")).ticks(5))
+            .selectAll("text")
+            .style("fill", "#8c6c5a");
+
+        chartG.append("g")
+            .call(d3.axisLeft(yScale).ticks(4).tickFormat(d => d + "h"))
+            .selectAll("text")
+            .style("fill", "#8c6c5a");
+
+        // Y-axis label
+        chartG.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -45)
+            .attr("x", -innerHeight / 2)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#8c6c5a")
+            .attr("font-size", "0.9rem")
+            .text("Hours per day");
+
+        // Area generators
+        const screenArea = d3.area()
+            .x(d => xScale(d.year))
+            .y0(innerHeight)
+            .y1(d => yScale(d.screen))
+            .curve(d3.curveMonotoneX);
+
+        const outdoorArea = d3.area()
+            .x(d => xScale(d.year))
+            .y0(innerHeight)
+            .y1(d => yScale(d.outdoor))
+            .curve(d3.curveMonotoneX);
+
+        // Screen time area
+        const screenPath = chartG.append("path")
+            .datum(chartData)
+            .attr("fill", "rgba(93, 58, 77, 0.6)")
+            .attr("stroke", "#5d3a4d")
+            .attr("stroke-width", 2)
+            .attr("d", screenArea);
+
+        // Outdoor time area
+        const outdoorPath = chartG.append("path")
+            .datum(chartData)
+            .attr("fill", "rgba(161, 166, 128, 0.7)")
+            .attr("stroke", "#a1a680")
+            .attr("stroke-width", 2)
+            .attr("d", outdoorArea);
+
+        // Animation functions
+        function animateCards() {
+            const cards = document.querySelectorAll('.era-card');
+            cards.forEach((card, i) => {
+                setTimeout(() => {
+                    card.classList.add('visible');
+
+                    // Animate the bar
+                    const bar = card.querySelector('.outdoor-time-fill');
+                    const targetWidth = bar.getAttribute('data-width');
+                    setTimeout(() => {
+                        bar.style.width = targetWidth + '%';
+                    }, 200);
+                }, i * 400);
+            });
+        }
+
+        function animateChart() {
+            // Animate screen area growing
+            const totalLength = screenPath.node().getTotalLength();
+
+            screenPath
+                .attr("stroke-dasharray", totalLength)
+                .attr("stroke-dashoffset", totalLength)
+                .attr("fill-opacity", 0)
+                .transition()
+                .delay(eras.length * 400)
+                .duration(2000)
+                .attr("stroke-dashoffset", 0)
+                .attr("fill-opacity", 0.6);
+
+            // Animate outdoor area shrinking
+            const outdoorLength = outdoorPath.node().getTotalLength();
+
+            outdoorPath
+                .attr("stroke-dasharray", outdoorLength)
+                .attr("stroke-dashoffset", outdoorLength)
+                .attr("fill-opacity", 0)
+                .transition()
+                .delay(eras.length * 400 + 500)
+                .duration(2000)
+                .attr("stroke-dashoffset", 0)
+                .attr("fill-opacity", 0.7);
+        }
+
+        function resetAnimation() {
+            // Reset cards
+            document.querySelectorAll('.era-card').forEach(card => {
+                card.classList.remove('visible');
+                const bar = card.querySelector('.outdoor-time-fill');
+                bar.style.width = '0%';
+            });
+
+            // Reset chart
+            screenPath
+                .attr("stroke-dashoffset", screenPath.node().getTotalLength())
+                .attr("fill-opacity", 0);
+
+            outdoorPath
+                .attr("stroke-dashoffset", outdoorPath.node().getTotalLength())
+                .attr("fill-opacity", 0);
+        }
+
+        // Intersection observer for scroll-triggered animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCards();
+                    animateChart();
+                    observer.disconnect();
+                }
+            });
+        }, { threshold: 0.2 });
+
+        observer.observe(document.querySelector('#timeline-container'));
+
+        // Replay button
+        document.getElementById('replay-btn').addEventListener('click', () => {
+            resetAnimation();
+            setTimeout(() => {
+                animateCards();
+                animateChart();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
